@@ -11,7 +11,7 @@ body{
 }
 
 .bill{
-    width:750px;
+    width:800px;
     margin:20px auto;
     background:white;
     padding:20px;
@@ -28,6 +28,11 @@ body{
 .shop-name{
     font-size:24px;
     font-weight:bold;
+}
+
+.account{
+    text-align:right;
+    font-size:14px;
 }
 
 .info{
@@ -62,7 +67,7 @@ input{
 }
 
 .summary{
-    width:300px;
+    width:320px;
     margin-left:auto;
     margin-top:20px;
 }
@@ -70,6 +75,19 @@ input{
 .summary td{
     text-align:right;
     padding:5px;
+}
+
+.stamp{
+    margin-top:40px;
+    text-align:right;
+}
+
+.stamp-box{
+    display:inline-block;
+    padding:20px;
+    border:2px dashed black;
+    transform:rotate(-10deg);
+    font-weight:bold;
 }
 
 .print-btn{
@@ -100,15 +118,25 @@ button{
 <div class="bill">
 
 <div class="header">
+
     <div>
         <div class="shop-name">MK GROCERY STORE</div>
         <div>Main Road, Nagpur</div>
         <div>GST: 27ABCDE1234F1Z5</div>
     </div>
+
+    <div class="account">
+        <b>A/C HOLDER DETAILS</b><br>
+        Bank: State Bank of India<br>
+        A/C Name: MK Grocery Store<br>
+        A/C No: 12345678901<br>
+        IFSC: SBIN0001234
+    </div>
+
 </div>
 
 <div class="info">
-Bill No: <input type="text">
+Bill No: <input type="text" id="billNo" readonly>
 &nbsp;&nbsp;
 Date: <input type="text" id="date" readonly>
 <br><br>
@@ -144,8 +172,13 @@ Phone: <input type="text">
 </tr>
 
 <tr>
-<td>GST (18%):</td>
-<td id="gstAmount">0</td>
+<td>SGST (9%):</td>
+<td id="sgst">0</td>
+</tr>
+
+<tr>
+<td>CGST (9%):</td>
+<td id="cgst">0</td>
 </tr>
 
 <tr>
@@ -165,6 +198,14 @@ Phone: <input type="text">
 
 </table>
 
+<!-- 🔥 STAMP -->
+<div class="stamp">
+    <div class="stamp-box">
+        FOR MK GROCERY STORE<br><br>
+        Authorized Signatory
+    </div>
+</div>
+
 <div class="print-btn">
 <button onclick="window.print()">Print</button>
 </div>
@@ -175,6 +216,18 @@ Phone: <input type="text">
 
 // Auto Date
 document.getElementById("date").value = new Date().toLocaleDateString();
+
+// 🔥 AUTO BILL NUMBER
+let billCounter = localStorage.getItem("billCounter");
+
+if(!billCounter){
+    billCounter = 1;
+}else{
+    billCounter = parseInt(billCounter) + 1;
+}
+
+localStorage.setItem("billCounter", billCounter);
+document.getElementById("billNo").value = billCounter;
 
 function calculate(el){
     let row = el.parentElement.parentElement;
@@ -201,14 +254,17 @@ function finalCalc(){
 
     let sub = parseFloat(document.getElementById("subTotal").innerText) || 0;
 
-    let gstAmt = sub * 0.18; // AUTO GST
-    document.getElementById("gstAmount").innerText = gstAmt.toFixed(2);
+    let sgst = sub * 0.09;
+    let cgst = sub * 0.09;
+
+    document.getElementById("sgst").innerText = sgst.toFixed(2);
+    document.getElementById("cgst").innerText = cgst.toFixed(2);
 
     let disc = document.getElementById("discount").value;
     let discAmt = (sub * disc)/100 || 0;
     document.getElementById("discAmount").innerText = discAmt.toFixed(2);
 
-    let net = sub + gstAmt - discAmt;
+    let net = sub + sgst + cgst - discAmt;
     document.getElementById("netTotal").innerText = net.toFixed(2);
 }
 
